@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "categoria": "Oggetto Trovato",
+    "titolo": "Mazzo di chiavi",
+    "luogo": "Aula 3",
+    "data": "06/11/2026"
+  },
+  {
+    "id": 2,
+    "categoria": "Segnalazione",
+    "titolo": "Proiettore non funzionante",
+    "luogo": "Aula Magna",
+    "data": "06/11/2026"
+  }
+]
