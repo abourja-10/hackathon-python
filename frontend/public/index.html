@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>CampusBoard</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -25,7 +23,12 @@
 
             <button class="nav-item active" onclick="filtra('Tutte', this)">
                 <span>🏠</span>
-                <span>Home</span>
+                <span>Tutte</span>
+            </button>
+
+            <button class="nav-item" onclick="filtra('attivi', this)">
+                <span>⚡</span>
+                <span>In Corso (Attivi)</span>
             </button>
 
             <button class="nav-item" onclick="filtra('Oggetto Trovato', this)">
@@ -38,33 +41,26 @@
                 <span>Segnalazioni</span>
             </button>
 
-            <button class="nav-item" onclick="filtra('Evento', this)">
-                <span>📅</span>
-                <span>Eventi</span>
+            <button class="nav-item" onclick="filtra('archiviati', this)">
+                <span>📦</span>
+                <span>Archivio Chiusi</span>
             </button>
 
         </nav>
 
         <div class="sidebar-promo">
-
             <div class="promo-icon">💡</div>
-
             <h3>Un campus<br>più connesso</h3>
-
             <p>Trova, segnala, condividi.</p>
-
             <div class="campus-illustration">🏫</div>
-
         </div>
 
         <div class="sidebar-user">
             <div class="user-avatar">👤</div>
-
             <div class="user-info">
                 <strong>Utente</strong>
                 <span>Online</span>
             </div>
-
             <span class="user-arrow">⌄</span>
         </div>
 
@@ -78,71 +74,71 @@
         <header class="header">
 
             <div class="top-actions">
-
-                <button class="icon-button" id="themeToggle"
-                        aria-label="Cambia tema">
+                <button class="icon-button" id="themeToggle" aria-label="Cambia tema">
                     ☀️
                 </button>
 
-                <button class="icon-button notification-button"
-                        aria-label="Notifiche">
+                <button class="icon-button notification-button" aria-label="Notifiche">
                     🔔
-                    <span class="notification-count">2</span>
+                    <span class="notification-count" id="badge-notifiche">0</span>
                 </button>
-
             </div>
 
             <div class="header-content">
-
                 <h1>
                     <span class="pin">📌</span>
                     Campus<span>Board</span>
                 </h1>
-
                 <p>Bacheca interattiva della comunità</p>
-
             </div>
 
         </header>
 
+        <!-- STATISTICHE DA RIEPILOGO.JSON -->
+        <div class="stats-bar" id="stats-bar" style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <div class="stat-card" style="padding: 10px 16px; border-radius: 8px; background: rgba(0,0,0,0.04); font-size: 0.95rem;">
+                🟢 Aperti: <strong id="stat-aperti">0</strong>
+            </div>
+            <div class="stat-card" style="padding: 10px 16px; border-radius: 8px; background: rgba(0,0,0,0.04); font-size: 0.95rem;">
+                📦 Chiusi / Archiviati: <strong id="stat-chiusi">0</strong>
+            </div>
+        </div>
 
         <!-- FILTRI -->
         <div class="filters">
 
-            <button class="btn-filter active"
-                    onclick="filtra('Tutte', this)">
+            <button class="btn-filter active" onclick="filtra('Tutte', this)">
                 <span>⌂</span>
                 Tutte
             </button>
 
-            <button class="btn-filter"
-                    onclick="filtra('Oggetto Trovato', this)">
+            <button class="btn-filter" onclick="filtra('attivi', this)">
+                <span>⚡</span>
+                Solo Attivi
+            </button>
+
+            <button class="btn-filter" onclick="filtra('Oggetto Trovato', this)">
                 <span>⌕</span>
                 Oggetti Trovati
             </button>
 
-            <button class="btn-filter"
-                    onclick="filtra('Segnalazione', this)">
+            <button class="btn-filter" onclick="filtra('Segnalazione', this)">
                 <span>⚑</span>
                 Segnalazioni
             </button>
 
-            <button class="btn-filter"
-                    onclick="filtra('Evento', this)">
-                <span>▦</span>
-                Eventi
+            <button class="btn-filter" onclick="filtra('archiviati', this)">
+                <span>📦</span>
+                Archivio
             </button>
 
         </div>
 
-
         <!-- BACHECA DINAMICA -->
         <section id="board" class="grid"></section>
 
-
         <!-- FOOTER -->
         <footer class="footer">
-
             <div>
                 ♡ &nbsp; CampusBoard
                 <span class="footer-separator">•</span>
@@ -152,7 +148,6 @@
             <div class="footer-university">
                 🏛️ Università
             </div>
-
         </footer>
 
     </main>

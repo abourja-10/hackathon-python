@@ -1,125 +1,526 @@
-let datiLocali = [];
-let filtroCorrente = 'Tutte';
+// ==========================================
+// CAMPUSBOARD - FRONTEND JAVASCRIPT
+// ==========================================
 
-async function caricaBacheca() {
-    try {
-        const response = await fetch('/api/bacheca');
+let datiTotali = [];
+let filtroAttuale = 'Tutte';
+let caricamentoInCorso = false;
 
-        if (!response.ok) {
-            throw new Error('Errore nel caricamento della bacheca');
-        }
+// ==========================================
+// UTILITY
+// ==========================================
 
-        datiLocali = await response.json();
-        renderBoard();
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char]);
+}
 
-    } catch (err) {
-        console.error("Errore fetch:", err);
+// Icone in base alla categoria
+function getCategoriaIcon(categoria) {
+    switch (categoria?.toLowerCase()) {
+        case 'oggetto trovato':
+            return '🔍';
+        case 'segnalazione':
+            return '🔔';
+        case 'evento':
+            return '📅';
+        default:
+            return '📌';
     }
 }
 
-function renderBoard() {
-    const container = document.getElementById('board');
-    container.innerHTML = '';
+// Badge stato
+function getStatoBadgeClass(stato) {
+    switch (stato?.toLowerCase()) {
+        case 'aperta':
+        case 'attivo':
+        case 'trovato':
+            return 'badge-aperto';
 
-    const filtrati = filtroCorrente === 'Tutte'
-        ? datiLocali
-        : datiLocali.filter(d =>
-            d.categoria.toLowerCase() === filtroCorrente.toLowerCase()
+        case 'in_corso':
+        case 'in corso':
+            return 'badge-corso';
+
+        case 'chiusa':
+        case 'chiuso':
+        case 'restituito':
+        case 'archiviato':
+            return 'badge-chiuso';
+
+        default:
+            return 'badge-default';
+    }
+}
+
+// ==========================================
+// FILTRI
+// ==========================================
+
+function filtra(tipo, elemento) {
+    filtroAttuale = tipo;
+
+    const pulsanti = document.querySelectorAll(
+        '.btn-filter, .nav-item'
+    );
+
+    pulsanti.forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Supporta onclick="filtra('Tutte', event)"
+    // e onclick="filtra('Tutte', this)"
+    const btnCliccato =
+        elemento?.currentTarget ||
+        elemento?.target ||
+        elemento;
+
+    if (btnCliccato?.classList) {
+        btnCliccato.classList.add('active');
+    }
+
+    // Sincronizza sidebar e filtri superiori
+    pulsanti.forEach(btn => {
+        const onclick = btn.getAttribute('onclick') || '';
+
+        if (
+            onclick.includes(`'${tipo}'`) ||
+            onclick.includes(`"${tipo}"`)
+        ) {
+            btn.classList.add('active');
+        }
+    });
+
+    renderCards();
+}
+
+// ==========================================
+// CARICAMENTO DATI
+// ==========================================
+
+async function caricaDati() {
+
+    // Evita richieste sovrapposte
+    if (caricamentoInCorso) return;
+
+    caricamentoInCorso = true;
+
+    try {
+
+        // ----------------------------------
+        // BACHECA
+        // ----------------------------------
+
+        const resBacheca = await fetch('/api/bacheca');
+
+        if (!resBacheca.ok) {
+            throw new Error(
+                `Errore bacheca: ${resBacheca.status}`
+            );
+        }
+
+        const datiBacheca = await resBacheca.json();
+
+        let attivi = [];
+        let archiviati = [];
+
+        // Supporta API che restituisce un array
+        if (Array.isArray(datiBacheca)) {
+
+            attivi = datiBacheca;
+
+        } else {
+
+            attivi = Array.isArray(datiBacheca.attivi)
+                ? datiBacheca.attivi
+                : [];
+
+            archiviati = Array.isArray(datiBacheca.archiviati)
+                ? datiBacheca.archiviati
+                : [];
+        }
+
+        // ----------------------------------
+        // Normalizzazione dati
+        // ----------------------------------
+
+        const listaAttivi = attivi.map(item => ({
+            ...item,
+            isArchiviato: false
+        }));
+
+        const listaArchivio = archiviati.map(item => ({
+            ...item,
+            isArchiviato: true
+        }));
+
+        datiTotali = [
+            ...listaAttivi,
+            ...listaArchivio
+        ];
+
+        // ----------------------------------
+        // NOTIFICHE
+        // ----------------------------------
+
+        const badgeNotifiche =
+            document.getElementById('badge-notifiche');
+
+        if (badgeNotifiche) {
+            badgeNotifiche.textContent = listaAttivi.length;
+        }
+
+        // ----------------------------------
+        // CARD
+        // ----------------------------------
+
+        renderCards();
+
+        // ----------------------------------
+        // STATISTICHE
+        // ----------------------------------
+
+        try {
+
+            const resRiepilogo =
+                await fetch('/api/riepilogo');
+
+            if (resRiepilogo.ok) {
+
+                const stats = await resRiepilogo.json();
+
+                const statAperti =
+                    document.getElementById('stat-aperti');
+
+                const statChiusi =
+                    document.getElementById('stat-chiusi');
+
+                if (statAperti) {
+                    statAperti.textContent =
+                        stats.aperti ?? listaAttivi.length;
+                }
+
+                if (statChiusi) {
+                    statChiusi.textContent =
+                        stats.chiusi ?? listaArchivio.length;
+                }
+
+            }
+
+        } catch (erroreStats) {
+
+            console.warn(
+                'Statistiche non disponibili:',
+                erroreStats
+            );
+
+        }
+
+    } catch (err) {
+
+        console.error(
+            'Errore caricamento bacheca:',
+            err
         );
 
+    } finally {
+
+        caricamentoInCorso = false;
+
+    }
+}
+
+// ==========================================
+// RENDER CARD
+// ==========================================
+
+function renderCards() {
+
+    const container =
+        document.getElementById('board');
+
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // ----------------------------------
+    // FILTRAGGIO
+    // ----------------------------------
+
+    const filtrati = datiTotali.filter(item => {
+
+        if (filtroAttuale === 'Tutte') {
+            return true;
+        }
+
+        if (filtroAttuale === 'attivi') {
+            return !item.isArchiviato;
+        }
+
+        if (filtroAttuale === 'archiviati') {
+            return item.isArchiviato;
+        }
+
+        return (
+            item.categoria?.toLowerCase() ===
+            filtroAttuale.toLowerCase()
+        );
+    });
+
+    // ----------------------------------
+    // STATO VUOTO
+    // ----------------------------------
+
     if (filtrati.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Nessuna segnalazione trovata.
-            </div>
+
+        const empty = document.createElement('div');
+
+        empty.className = 'empty-state';
+
+        empty.innerHTML = `
+            <span class="empty-icon">📭</span>
+
+            <p>
+                Nessuna segnalazione presente
+                per questa categoria.
+            </p>
         `;
+
+        container.appendChild(empty);
+
         return;
     }
 
+    // ----------------------------------
+    // CREAZIONE CARD
+    // ----------------------------------
+
     filtrati.forEach((item, index) => {
+
         const card = document.createElement('article');
 
-        const catClass = item.categoria
+        const categoria =
+            item.categoria || 'Altro';
+
+        const catClass = categoria
             .toLowerCase()
             .replace(/\s+/g, '-');
 
         card.className = `card ${catClass}`;
 
-        const emoji = item.categoria === 'Oggetto Trovato'
-            ? '🔑'
-            : item.categoria === 'Segnalazione'
-                ? '📽️'
-                : '🎓';
+        if (item.isArchiviato) {
+            card.classList.add('card-archiviata');
+        }
 
-        card.style.animationDelay = `${index * 0.08}s`;
+        card.style.animationDelay =
+            `${index * 0.06}s`;
+
+        const icona =
+            getCategoriaIcon(categoria);
+
+        const stato =
+            item.stato ||
+            (item.isArchiviato ? 'Chiuso' : 'Attivo');
+
+        const statoClass =
+            getStatoBadgeClass(stato);
+
+        const storico =
+            Array.isArray(item.storico)
+                ? item.storico
+                : [];
+
+        // ----------------------------------
+        // CRONOLOGIA
+        // ----------------------------------
+
+        const cronologia = storico.length > 0
+
+            ? storico.map(s => `
+                <li>
+                    <strong>
+                        ${escapeHTML(s.stato)}
+                    </strong>
+
+                    <span>
+                        - ${escapeHTML(s.data)}
+                    </span>
+                </li>
+            `).join('')
+
+            : `
+                <li>
+                    Nessuna modifica registrata
+                </li>
+            `;
+
+        // ----------------------------------
+        // CONTENUTO CARD
+        // ----------------------------------
 
         card.innerHTML = `
-            <div class="badge">${item.categoria}</div>
 
-            <div class="card-illustration">${emoji}</div>
+            <div class="card-header">
 
-            <h3>${item.titolo}</h3>
+                <span class="badge badge-categoria">
 
-            <p class="meta">
-                📍 <strong>Luogo:</strong> ${item.luogo}
-            </p>
+                    ${icona}
 
-            <p class="meta">
-                📅 <strong>Data:</strong> ${item.data}
-            </p>
+                    ${escapeHTML(categoria)}
 
-            <button class="card-button" type="button">
-                Vedi dettagli →
-            </button>
+                </span>
+
+                <span class="badge ${statoClass}">
+
+                    ${escapeHTML(stato)}
+
+                </span>
+
+            </div>
+
+            <h3 class="card-title">
+
+                ${escapeHTML(
+                    item.titolo || 'Senza titolo'
+                )}
+
+            </h3>
+
+            <div class="card-details">
+
+                <p class="meta">
+
+                    📍 <strong>Luogo:</strong>
+
+                    ${escapeHTML(
+                        item.luogo || 'Non specificato'
+                    )}
+
+                </p>
+
+                <p class="meta">
+
+                    📅 <strong>Data:</strong>
+
+                    ${escapeHTML(
+                        item.data || 'N/D'
+                    )}
+
+                </p>
+
+            </div>
+
+            <details class="card-history">
+
+                <summary>
+
+                    Cronologia stati (${storico.length})
+
+                </summary>
+
+                <ul>
+
+                    ${cronologia}
+
+                </ul>
+
+            </details>
+
         `;
 
         container.appendChild(card);
+
     });
 }
 
-function filtra(categoria, elemento) {
-    filtroCorrente = categoria;
+// ==========================================
+// MODALITÀ NOTTURNA
+// ==========================================
 
-    // Aggiorna pulsanti dei filtri
-    document.querySelectorAll('.btn-filter')
-        .forEach(btn => btn.classList.remove('active'));
+function inizializzaTema() {
 
-    // Aggiorna pulsanti sidebar
-    document.querySelectorAll('.nav-item')
-        .forEach(btn => btn.classList.remove('active'));
+    const themeToggle =
+        document.getElementById('themeToggle');
 
-    // Evidenzia il pulsante cliccato
-    if (elemento) {
-        elemento.classList.add('active');
+    if (!themeToggle) {
+
+        console.warn(
+            'Pulsante themeToggle non trovato'
+        );
+
+        return;
     }
 
-    // Sincronizza menu e filtri
-    document.querySelectorAll('.btn-filter, .nav-item')
-        .forEach(btn => {
-            const onclick = btn.getAttribute('onclick');
+    // Evita duplicazione degli eventi
+    if (
+        themeToggle.dataset.themeInitialized === 'true'
+    ) {
+        return;
+    }
 
-            if (onclick && onclick.includes(`'${categoria}'`)) {
-                btn.classList.add('active');
-            }
-        });
+    themeToggle.dataset.themeInitialized = 'true';
 
-    renderBoard();
+    function aggiornaTema() {
+
+        const darkMode =
+            document.body.classList.contains('dark-mode');
+
+        themeToggle.textContent =
+            darkMode ? '🌙' : '☀️';
+
+        themeToggle.setAttribute(
+            'aria-label',
+            darkMode
+                ? 'Attiva modalità chiara'
+                : 'Attiva modalità notturna'
+        );
+
+        themeToggle.setAttribute(
+            'aria-pressed',
+            String(darkMode)
+        );
+    }
+
+    themeToggle.addEventListener('click', () => {
+
+        document.body.classList.toggle('dark-mode');
+
+        aggiornaTema();
+
+    });
+
+    aggiornaTema();
 }
 
-// DARK MODE
-const themeToggle = document.getElementById('themeToggle');
+// ==========================================
+// AVVIO APPLICAZIONE
+// ==========================================
 
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
+function inizializzaCampusBoard() {
 
-    themeToggle.textContent =
-        document.body.classList.contains('dark-mode')
-            ? '🌙'
-            : '☀️';
-});
+    inizializzaTema();
 
-// Caricamento iniziale
-caricaBacheca();
+    caricaDati();
 
-// Aggiornamento automatico
-setInterval(caricaBacheca, 3000);
+    // Aggiornamento automatico ogni 3 secondi
+    setInterval(caricaDati, 3000);
+
+}
+
+// Compatibilità con script defer
+if (document.readyState === 'loading') {
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        inizializzaCampusBoard
+    );
+
+} else {
+
+    inizializzaCampusBoard();
+
+}
