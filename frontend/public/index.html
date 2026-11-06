@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CampusBoard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🎓</div>
+            <h2>Campus<span>Board</span></h2>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <button class="nav-item active" onclick="filtra('Tutte', this)">
+                <span>🏠</span>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-item" onclick="filtra('Oggetto Trovato', this)">
+                <span>🔍</span>
+                <span>Oggetti Trovati</span>
+            </button>
+
+            <button class="nav-item" onclick="filtra('Segnalazione', this)">
+                <span>🔔</span>
+                <span>Segnalazioni</span>
+            </button>
+
+            <button class="nav-item" onclick="filtra('Evento', this)">
+                <span>📅</span>
+                <span>Eventi</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-promo">
+
+            <div class="promo-icon">💡</div>
+
+            <h3>Un campus<br>più connesso</h3>
+
+            <p>Trova, segnala, condividi.</p>
+
+            <div class="campus-illustration">🏫</div>
+
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">👤</div>
+
+            <div class="user-info">
+                <strong>Utente</strong>
+                <span>Online</span>
+            </div>
+
+            <span class="user-arrow">⌄</span>
+        </div>
+
+    </aside>
+
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="top-actions">
+
+                <button class="icon-button" id="themeToggle"
+                        aria-label="Cambia tema">
+                    ☀️
+                </button>
+
+                <button class="icon-button notification-button"
+                        aria-label="Notifiche">
+                    🔔
+                    <span class="notification-count">2</span>
+                </button>
+
+            </div>
+
+            <div class="header-content">
+
+                <h1>
+                    <span class="pin">📌</span>
+                    Campus<span>Board</span>
+                </h1>
+
+                <p>Bacheca interattiva della comunità</p>
+
+            </div>
+
+        </header>
+
+
+        <!-- FILTRI -->
+        <div class="filters">
+
+            <button class="btn-filter active"
+                    onclick="filtra('Tutte', this)">
+                <span>⌂</span>
+                Tutte
+            </button>
+
+            <button class="btn-filter"
+                    onclick="filtra('Oggetto Trovato', this)">
+                <span>⌕</span>
+                Oggetti Trovati
+            </button>
+
+            <button class="btn-filter"
+                    onclick="filtra('Segnalazione', this)">
+                <span>⚑</span>
+                Segnalazioni
+            </button>
+
+            <button class="btn-filter"
+                    onclick="filtra('Evento', this)">
+                <span>▦</span>
+                Eventi
+            </button>
+
+        </div>
+
+
+        <!-- BACHECA DINAMICA -->
+        <section id="board" class="grid"></section>
+
+
+        <!-- FOOTER -->
+        <footer class="footer">
+
+            <div>
+                ♡ &nbsp; CampusBoard
+                <span class="footer-separator">•</span>
+                Insieme per un campus migliore
+            </div>
+
+            <div class="footer-university">
+                🏛️ Università
+            </div>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
