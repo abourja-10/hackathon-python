@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "categoria": "Oggetto Trovato",
+    "titolo": "Mazzo di chiavi",
+    "luogo": "Aula 3",
+    "data": "06/11/2026",
+    "stato": "trovato",
+    "storico": [
+      {
+        "stato": "trovato",
+        "data": "06/11/2026"
+      },
+      {
+        "stato": "restituito",
+        "data": "06/11/2026"
+      },
+      {
+        "stato": "trovato",
+        "data": "06/11/2026"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "categoria": "Oggetto Trovato",
+    "titolo": "chiavi",
+    "luogo": "scuola",
+    "data": "06/11/2026",
+    "stato": "trovato",
+    "storico": [
+      {
+        "stato": "trovato",
+        "data": "06/11/2026"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "categoria": "Segnalazione",
+    "titolo": "Distributore di snack guasto",
+    "luogo": "Aula 2",
+    "data": "06/11/2026",
+    "stato": "aperta",
+    "storico": [
+      {
+        "stato": "aperta",
+        "data": "06/11/2026"
+      }
+    ]
+  }
+]

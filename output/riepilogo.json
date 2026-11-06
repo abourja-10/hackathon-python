@@ -1,0 +1,15 @@
+{
+  "aperti": 3,
+  "chiusi": 5,
+  "da_restituire_per_luogo": {
+    "Aula 3": [
+      "Mazzo di chiavi"
+    ],
+    "scuola": [
+      "chiavi"
+    ]
+  },
+  "segnalazioni_per_stato": {
+    "aperta": 1
+  }
+}
