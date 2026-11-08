@@ -78,23 +78,6 @@
         "data": "06/11/2026"
       }
     ]
-  },
-  {
-    "id": 7,
-    "categoria": "Segnalazione",
-    "titolo": "manu timbo ha fatto anche oggi festa",
-    "luogo": "non lo so",
-    "data": "06/11/2026",
-    "stato": "chiusa",
-    "storico": [
-      {
-        "stato": "aperta",
-        "data": "06/11/2026"
-      },
-      {
-        "stato": "chiusa",
-        "data": "06/11/2026"
-      }
-    ]
   }
+  
 ]
