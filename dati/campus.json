@@ -48,5 +48,19 @@
         "data": "06/11/2026"
       }
     ]
+  },
+  {
+    "id": 9,
+    "categoria": "Segnalazione",
+    "titolo": "Wi-Fi assente o lento",
+    "luogo": "aula 5",
+    "data": "09/11/2026",
+    "stato": "aperta",
+    "storico": [
+      {
+        "stato": "aperta",
+        "data": "09/11/2026"
+      }
+    ]
   }
 ]
